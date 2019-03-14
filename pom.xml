@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-dynamodb</artifactId>
+            <artifactId>aws-java-sdk-ssm</artifactId>
             <version>1.11.473</version>
         </dependency>
         <dependency>
