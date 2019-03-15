@@ -38,7 +38,6 @@ java -jar aws-smtp-relay.jar
 ### Arguments
 ```
 usage: aws-smtp-relay
-usage: aws-smtp-relay
  -a,--sourceArn <arg>           AWS ARN of the sending authorization policy
  -b,--bindAddress <arg>         Address to listen to
  -c,--configuration <arg>       AWS SES configuration to use
