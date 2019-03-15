@@ -132,9 +132,7 @@ Replace $SSMKEY with KMS key arn for the alias aws/ssm i.e. arn:aws:kms:ap-south
         "kms:Decrypt"
       ],
       "Resource": [
-        {
-          "$SSMKEY"
-        }
+        "$SSMKEY"
       ]
     }
   ]

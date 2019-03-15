@@ -11,8 +11,14 @@ import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathR
 import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
 import com.amazonaws.util.StringUtils;
 import org.apache.commons.cli.CommandLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 public class SsmConfigCollection {
+
+    Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private CommandLine cmd;
     private DeliveryDetails deliveryDetails;
@@ -33,9 +39,11 @@ public class SsmConfigCollection {
             GetParametersByPathRequest parameterRequest = new GetParametersByPathRequest();
             parameterRequest.withPath(prefix).withRecursive(true).setWithDecryption(true);
             GetParametersByPathResult parameterResult = simpleSystemsManagementClient.getParametersByPath(parameterRequest);
+            log.trace("length is: " + parameterResult.getParameters().size());
             for (Parameter param : parameterResult.getParameters()) {
                 String key = param.getName();
                 String value = param.getValue();
+                log.trace("key is: " + key +" value: " + value);
                 if (key.endsWith("/region")) {
                     deliveryDetails.setRegion(value);
                 } else if (key.endsWith("/configuration")) {

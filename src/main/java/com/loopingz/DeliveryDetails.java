@@ -81,7 +81,9 @@ public class DeliveryDetails {
 
     //if starts with t its true, else we don't override
     public boolean isSmtpOverride() {
-        return StringUtils.beginsWithIgnoreCase(smtpOverride, "t");
+        return
+                !StringUtils.isNullOrEmpty(smtpHost) &&
+                StringUtils.beginsWithIgnoreCase(smtpOverride, "t");
     }
 
     public void setSmtpOverride(String smtpOverride) {
