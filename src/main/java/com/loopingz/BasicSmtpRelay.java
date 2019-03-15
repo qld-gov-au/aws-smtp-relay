@@ -2,7 +2,6 @@ package com.loopingz;
 
 
 import com.amazonaws.util.StringUtils;
-import org.subethamail.smtp.RejectException;
 import org.subethamail.smtp.helper.SimpleMessageListener;
 import org.subethamail.smtp.helper.SimpleMessageListenerAdapter;
 import org.subethamail.smtp.server.SMTPServer;
@@ -10,6 +9,7 @@ import org.subethamail.smtp.server.SMTPServer;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -27,9 +27,9 @@ public class BasicSmtpRelay implements SimpleMessageListener {
         props = new Properties();
         props.put("mail.smtp.starttls.enable", "true");
         props.put("mail.smtp.host", deliveryDetails.getSmtpHost());
-        props.put("mail.smtp.port",  deliveryDetails.getSmtpPort());
+        props.put("mail.smtp.port", deliveryDetails.getSmtpPort());
 
-        if (!StringUtils.isNullOrEmpty(deliveryDetails.getSmtpUsername()) && !StringUtils.isNullOrEmpty(deliveryDetails.getSmtpPassword())){
+        if (!StringUtils.isNullOrEmpty(deliveryDetails.getSmtpUsername()) && !StringUtils.isNullOrEmpty(deliveryDetails.getSmtpPassword())) {
             props.put("mail.smtp.auth", "true");
             authRequest = true;
         } else {
@@ -42,20 +42,18 @@ public class BasicSmtpRelay implements SimpleMessageListener {
         return true;
     }
 
-    public void deliver(String from, String to, InputStream inputStream) {
+    public void deliver(String from, String to, InputStream inputStream) throws IOException {
 
         try {
             Session session = getSession();
             Message msg = new MimeMessage(session, inputStream);
-        msg.setFrom();
-        msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
-        msg.setFrom(new InternetAddress(from));
+            msg.setFrom();
+            msg.setRecipient(Message.RecipientType.TO, new InternetAddress(to));
+            msg.setFrom(new InternetAddress(from));
 
-        Transport.send(msg);
-        } catch(SendFailedException ex) {
-            throw new RejectException(451, ex.getMessage());
-        } catch (MessagingException e) {
-            throw new RejectException(e.getMessage());
+            Transport.send(msg);
+        } catch (MessagingException ex){
+            throw new IOException(ex.getMessage());
         }
     }
 
@@ -71,10 +69,15 @@ public class BasicSmtpRelay implements SimpleMessageListener {
         return Session.getDefaultInstance(props);
     }
 
+
     void run() throws UnknownHostException {
-        SMTPServer smtpServer = new SMTPServer(new SimpleMessageListenerAdapter(this));
-        smtpServer.setBindAddress(InetAddress.getByName(deliveryDetails.getBindAddress()));
-        smtpServer.setPort(deliveryDetails.getPort());
+        SMTPServer.Builder builder = new SMTPServer.Builder();
+        builder.bindAddress(InetAddress.getByName(deliveryDetails.getBindAddress()))
+                .port(deliveryDetails.getPort())
+                .simpleMessageListener(this);
+        SMTPServer smtpServer = builder.build();
         smtpServer.start();
     }
+
+
 }

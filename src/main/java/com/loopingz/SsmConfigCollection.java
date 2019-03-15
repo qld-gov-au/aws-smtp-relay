@@ -9,6 +9,7 @@ import com.amazonaws.services.simplesystemsmanagement.model.AWSSimpleSystemsMana
 import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathRequest;
 import com.amazonaws.services.simplesystemsmanagement.model.GetParametersByPathResult;
 import com.amazonaws.services.simplesystemsmanagement.model.Parameter;
+import com.amazonaws.util.StringUtils;
 import org.apache.commons.cli.CommandLine;
 
 public class SsmConfigCollection {
@@ -30,7 +31,7 @@ public class SsmConfigCollection {
                     AWSSimpleSystemsManagementClientBuilder.standard().withCredentials(credentials).withRegion(Regions.getCurrentRegion().getName()).build();
 
             GetParametersByPathRequest parameterRequest = new GetParametersByPathRequest();
-            parameterRequest.withPath(prefix).withRecursive(true).setWithDecryption(Boolean.valueOf(true));
+            parameterRequest.withPath(prefix).withRecursive(true).setWithDecryption(true);
             GetParametersByPathResult parameterResult = simpleSystemsManagementClient.getParametersByPath(parameterRequest);
             for (Parameter param : parameterResult.getParameters()) {
                 String key = param.getName();
@@ -55,7 +56,7 @@ public class SsmConfigCollection {
 
             }
         } catch (AWSSimpleSystemsManagementException e) {
-            throw new RuntimeException("Failed to pass ssm arguments", e);
+            throw new RuntimeException("Failed to pass SSM arguments", e);
         }
         return deliveryDetails;
     }
