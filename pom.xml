@@ -26,7 +26,7 @@
             <dependency>
                 <groupId>com.github.davidmoten</groupId>
                 <artifactId>subethasmtp</artifactId>
-                <version>4.0.1</version>
+                <version>5.2.4</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
