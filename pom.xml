@@ -318,5 +318,26 @@
                 <findbugs.skip>true</findbugs.skip>
             </properties>
         </profile>
+       <profile>
+            <id>internalRepo</id>
+            <activation>
+                <property>
+                    <name>useInternalRepo</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <distributionManagement>
+                <repository>
+                    <id>nexus</id>
+                    <name>Nexus</name>
+                    <url>https://nexus.tools.services.qld.gov.au/nexus/repository/releases</url>
+                </repository>
+                <snapshotRepository>
+                    <id>nexus</id>
+                    <name>Nexus</name>
+                    <url>https://nexus.tools.services.qld.gov.au/nexus/repository/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
     </profiles>
 </project>
