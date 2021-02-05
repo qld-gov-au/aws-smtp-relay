@@ -1,8 +1,9 @@
 # aws-smtp-relay
 
-![logo](https://raw.githubusercontent.com/8llouch/aws-smtp-relay/master/docs/aws-smtp-relay-logo.png)
+![logo](https://raw.githubusercontent.com/qld-gov-au/aws-smtp-relay/master/docs/aws-smtp-relay-logo.png)
 
-Current master: [![CircleCI](https://circleci.com/gh/qld-gov-au/aws-smtp-relay.svg?style=svg)](https://circleci.com/gh/qld-gov-au/aws-smtp-relay)
+Current master: ![Java CI](https://github.com/qld-gov-au/aws-smtp-relay/workflows/Java%20CI/badge.svg?branch=master) [![CircleCI](https://circleci.com/gh/qld-gov-au/aws-smtp-relay.svg?style=svg)](https://circleci.com/gh/qld-gov-au/aws-smtp-relay)
+Default: ![Java CI](https://github.com/qld-gov-au/aws-smtp-relay/workflows/Java%20CI/badge.svg)
 
 Local SMTP server that convert SMTP message to AWS SES API Call to allow you to use **AWS Role Instance**.
 
