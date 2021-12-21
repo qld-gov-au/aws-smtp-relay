@@ -95,7 +95,7 @@
         </resources>
         <plugins>
             <plugin>
-                <groupId>org.owasp</groupId><artifactId>dependency-check-maven</artifactId><version>6.5.0</version>
+                <groupId>org.owasp</groupId><artifactId>dependency-check-maven</artifactId><version>6.5.1</version>
                 <configuration>
                     <suppressionFile>${project.basedir}/src/main/config/owasp-dependency-checker-suppressions.xml</suppressionFile>
                     <failBuildOnCVSS>4</failBuildOnCVSS>
