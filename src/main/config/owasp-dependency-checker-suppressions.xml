@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
-
+<suppress>
+   <notes><![CDATA[
+   file name: commons-cli-1.5.0.jar apache:james is a false positive
+   ]]></notes>
+   <packageUrl regex="true">^pkg:maven/commons\-cli/commons\-cli@.*$</packageUrl>
+   <cpe>cpe:/a:apache:james</cpe>
+</suppress>
 </suppressions>
