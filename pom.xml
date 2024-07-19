@@ -4,7 +4,7 @@
 
     <groupId>com.loopingz</groupId>
     <artifactId>aws-smtp-relay</artifactId>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.3.2</version>
 
     <scm>
         <url>https://github.com/qld-gov-au/aws-smtp-relay</url>
