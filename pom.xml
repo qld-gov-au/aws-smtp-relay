@@ -14,10 +14,10 @@
     </scm>
 
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <dependency.skip>false</dependency.skip>
-        <pmd.version>6.55.0</pmd.version>
+        <pmd.version>7.4.0</pmd.version>
         <nvdApiKey>${env.NVD_NIST_APIKEY}</nvdApiKey>
     </properties>
 
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
-            <version>1.6.7</version>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -166,7 +166,7 @@
                     <dependency>
                         <groupId>com.puppycrawl.tools</groupId>
                         <artifactId>checkstyle</artifactId>
-                        <version>9.3</version>
+                        <version>10.17.0</version>
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -189,7 +189,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.16.0</version>
+                <version>3.24.0</version>
                 <dependencies>
                     <dependency>
                         <groupId>net.sourceforge.pmd</groupId>
@@ -205,7 +205,6 @@
                 <configuration>
                     <includeTests>false</includeTests>
                     <rulesets>
-                        <ruleset>/rulesets/java/basic.xml</ruleset>
                         <ruleset>${project.basedir}/src/main/config/pmd-rules.xml</ruleset>
                     </rulesets>
                     <excludeRoots>
@@ -229,14 +228,14 @@
                 <version>3.0.5</version>
                 <dependencies>
                     <dependency>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>findbugs</artifactId>
-                        <version>3.0.1</version>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs</artifactId>
+                        <version>4.8.6</version>
                     </dependency>
                     <dependency>
-                        <groupId>com.google.code.findbugs</groupId>
-                        <artifactId>annotations</artifactId>
-                        <version>3.0.1u2</version>
+                        <groupId>com.github.spotbugs</groupId>
+                        <artifactId>spotbugs-annotations</artifactId>
+                        <version>4.8.6</version>
                     </dependency>
                 </dependencies>
                 <configuration>
