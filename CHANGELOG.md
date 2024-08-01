@@ -2,6 +2,18 @@
 ## [Unreleased]
 
 
+<a name="v2.0.0"></a>
+## [v2.0.0] - 2024-08-01
+### Pull Requests
+- Merge pull request [#1061](https://github.com/qld-gov-au/aws-smtp-relay/issues/1061) from qld-gov-au/dependabot/maven/com.h3xstream.findsecbugs-findsecbugs-plugin-1.13.0
+  - Merge pull request [#1058](https://github.com/qld-gov-au/aws-smtp-relay/issues/1058) from qld-gov-au/dependabot/maven/com.puppycrawl.tools-checkstyle-10.17.0
+  - Merge pull request [#1064](https://github.com/qld-gov-au/aws-smtp-relay/issues/1064) from qld-gov-au/dependabot/maven/org.codehaus.mojo-exec-maven-plugin-3.3.0
+  - Merge pull request [#1065](https://github.com/qld-gov-au/aws-smtp-relay/issues/1065) from qld-gov-au/dependabot/maven/com.mebigfatguy.fb-contrib-fb-contrib-7.6.4
+  - Merge pull request [#1067](https://github.com/qld-gov-au/aws-smtp-relay/issues/1067) from qld-gov-au/java-21
+  - Merge pull request [#1066](https://github.com/qld-gov-au/aws-smtp-relay/issues/1066) from qld-gov-au/update-changelog
+  - Merge pull request [#1059](https://github.com/qld-gov-au/aws-smtp-relay/issues/1059) from qld-gov-au/dependabot/maven/com.amazonaws-aws-java-sdk-bom-1.12.767
+  
+  
 <a name="v1.3.3"></a>
 ## [v1.3.3] - 2024-08-01
 ### Pull Requests
@@ -259,7 +271,8 @@
   - Merge pull request [#1](https://github.com/qld-gov-au/aws-smtp-relay/issues/1) from dmetzler/master
   
   
-[Unreleased]: https://github.com/qld-gov-au/aws-smtp-relay/compare/v1.3.3...HEAD
+[Unreleased]: https://github.com/qld-gov-au/aws-smtp-relay/compare/v2.0.0...HEAD
+[v2.0.0]: https://github.com/qld-gov-au/aws-smtp-relay/compare/v1.3.3...v2.0.0
 [v1.3.3]: https://github.com/qld-gov-au/aws-smtp-relay/compare/1.3.2...v1.3.3
 [1.3.2]: https://github.com/qld-gov-au/aws-smtp-relay/compare/1.3.1...1.3.2
 [1.3.1]: https://github.com/qld-gov-au/aws-smtp-relay/compare/aws-smtp-relay-1.3.1...1.3.1
