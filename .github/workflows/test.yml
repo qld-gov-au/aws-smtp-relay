@@ -50,6 +50,7 @@ jobs:
 
       - name: Cache NVD Database
         uses: actions/cache/save@v4
+        if: ${{ always() }}
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
           key: nvd-cache-${{ runner.os }}-${{ github.run_id }}
