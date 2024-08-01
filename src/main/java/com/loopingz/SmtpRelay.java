@@ -17,7 +17,7 @@ public abstract class SmtpRelay implements SimpleMessageListener {
 
   public static void init(SmtpRelay relay) throws UnknownHostException {
     singleton = relay;
-    SmtpRelay.reload();
+    reload();
   }
 
   @Override
@@ -30,7 +30,7 @@ public abstract class SmtpRelay implements SimpleMessageListener {
       throw new RuntimeException("SMTP Server singleton does not exist");
     }
     singleton.deliveryDetails = deliveryDetails;
-    SmtpRelay.reload();
+    reload();
   }
 
   public static void reload() throws UnknownHostException {
