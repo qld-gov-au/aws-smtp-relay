@@ -24,20 +24,20 @@ enum Params {
     SMTP_USERNAME("smtpU", "smtpUsername"),
     SMTP_PASSWORD("smtpW", "smtpPassword");
 
-    private String key;
-    private String nameName;
+    private String javaKey;
+    private String ssmParameterName;
 
     Params(String key, String nameName) {
-        this.key = key;
-        this.nameName = nameName;
+        javaKey = key;
+        ssmParameterName = nameName;
     }
 
     public String key() {
-        return key;
+        return javaKey;
     }
 
     @Override
     public String toString() {
-        return nameName;
+        return ssmParameterName;
     }
 }

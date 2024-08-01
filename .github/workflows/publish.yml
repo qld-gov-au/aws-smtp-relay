@@ -1,0 +1,239 @@
+name: Package Publish
+run-name: "Deploy from \"${{ github.ref_name }}\" to version \"${{ github.event.inputs.releaseVersion }}\" by @${{ github.actor }}, dryrun: ${{ github.event.inputs.publish == 'No' }}"
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      publish:
+        type: choice
+        description: Publish Version
+        options:
+          - 'No'
+          - 'Yes'
+      releaseVersion:
+        description: 'Release version'
+        required: true
+        default: '1.3.2'
+      developmentVersion:
+        description: 'Development version'
+        required: true
+        default: '1.3.3-SNAPSHOT'
+
+jobs:
+  publish:
+    name: "Release version ${{ github.event.inputs.releaseversion }}"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pages: write
+      actions: write
+      id-token: write
+    env:
+      SEGMENT_DOWNLOAD_TIMEOUT_MINS: '5'
+      #When run workflow_dispatch is set and publish is 'Yes', default for workflow_dispatch is No so you can't trigger without a double action
+      DO_DEPLOYMENT: ${{ github.event_name == 'workflow_dispatch'  && github.event.inputs.publish == 'Yes' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.DEPLOY_KEY }}
+          fetch-depth: 3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+          cache: 'maven'
+
+#      - name: Dump event context for debugging
+#        continue-on-error: true  # Debugging output only, and this annoyingly fails when the commit messge has a (
+#        run: |
+#          echo '${{ github.event_name }} for ${{ github.ref_type }} ${{ github.ref_name }} or ${{ github.event.ref }}'
+#          # https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads#push
+#          echo 'github.event:'
+#          echo '${{ toJSON(github.event) }}'
+#
+#      - name: Dump github context for debugging
+#        continue-on-error: true  # Debugging output only, and this annoyingly fails when the commit message has a (
+#        run: |
+#          echo '${{ toJSON(github) }}'
+
+      - name: Try to set a master password
+        run: |
+          MASTERPWD=$(openssl rand -base64 25)
+          echo "<settingsSecurity> <master>$(mvn --encrypt-master-password "$MASTERPWD")</master></settingsSecurity>" > $HOME/.m2/settings-security.xml
+          # echo "MASTERPWD=\"$MASTERPWD\"" >> $GITHUB_ENV
+          # The master password isn't actually used, but the maven-gpg-plugin complains otherwise.
+
+      - name: Git & Maven Status
+        run: |
+          mvn -version
+          git remote -v
+          git status --untracked-files --ignored
+          git log -3 --no-color --decorate
+
+      - name: Mvn Effective POM
+        run: mvn -N help:effective-pom
+        env:
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+
+      - name: Set up Git username and email
+        run: |
+          git config --global user.name "${{ vars.GPG_NAME }}"
+          git config --global user.email "${{ secrets.GPG_EMAIL }}"
+          echo "${{ secrets.GPG_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
+          #gpg -v --refresh-keys #only needed for external gpg keys
+          gpg --list-secret-keys --keyid-format LONG
+          git config --global user.signingkey ${{ secrets.GPG_KEY_ID }}
+          git config --global commit.gpgSign true
+          git config --global tag.gpgSign true
+          git config --global gpg.program gpg
+
+      - name: Check that we are on snapshot branch before creating the release
+        run: |
+          echo "Version: "
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout
+          mvn help:evaluate -Dexpression=project.version -q -DforceStdout | egrep -- '-SNAPSHOT$' > /dev/null || exit 1
+          # unfortunately, this would require a snapshot parent if just called from the command line, so we cannot use it: :-(
+          # mvn org.apache.maven.plugins:maven-enforcer-plugin:3.2.1:enforce -Drules=requireSnapshotVersion
+
+      - name: Dry run of release goals
+        run: |
+          mvn clean release:clean
+          mvn --batch-mode release:prepare -DdryRun=true -DpushChanges=false
+          mvn --batch-mode release:perform -DdryRun=true -DlocalCheckout=true -DdeployAtEnd=true
+          mvn clean release:clean
+          git clean -f -d -x
+
+        env:
+          NVD_NIST_APIKEY: ${{ secrets.NVD_NIST_APIKEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+
+
+      - name: Verify git is clean
+        run: |
+          git status --untracked-files --ignored
+          git log -3 --no-color --decorate
+          git clean -f -d
+
+      - name: Prepare package publish
+        run: |
+          # Define versions and tag
+          RELEASE_VERSION="${releaseVersion}"
+          DEVELOPMENT_VERSION="${developmentVersion}"
+          TAG=v"${releaseVersion}"
+
+          # Prepare the release with -DpushChanges=false so its all local for now
+          mvn  --batch-mode release:prepare -DreleaseVersion=$RELEASE_VERSION -DdevelopmentVersion=$DEVELOPMENT_VERSION -Dtag=$TAG -DsignTag=true -DpushChanges=false
+
+        env:
+          NVD_NIST_APIKEY: ${{ secrets.NVD_NIST_APIKEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          releaseVersion: ${{ github.event.inputs.releaseVersion }}
+          developmentVersion: ${{ github.event.inputs.developmentVersion }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+
+      - name: Git status after prepare
+        run: |
+          git status --untracked-files --ignored
+          git log -3 --no-color --decorate
+          cat release.properties || true
+
+      - name: Perform package publish
+        if: ${{ env.DO_DEPLOYMENT == 'true' }}
+        run: mvn  --batch-mode release:perform -DlocalCheckout=true -DdeployAtEnd=true -DsignTag=true
+        env:
+          NVD_NIST_APIKEY: ${{ secrets.NVD_NIST_APIKEY }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup on failure
+        if: failure()
+        env:
+          NVD_NIST_APIKEY: ${{ secrets.NVD_NIST_APIKEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ORG: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+          RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
+        run: ./.github/bin/cleanupGitHubMavenPackage.sh
+
+      - name: Git Status after perform
+        if: always()
+        run: |
+          git status
+          git log -3 --no-color --decorate
+
+      - name: Git Status after perform, long
+        if: always()
+        run: |
+          git status --untracked-files --ignored
+
+      - name: Increment workflow defaults
+        if: ${{ env.DO_DEPLOYMENT == 'true' }}
+        run: |
+          sudo apt-get install -y libxml2-utils
+          ./.github/bin/versionIncrement.sh
+
+
+      - name: Push changes
+        if: ${{ env.DO_DEPLOYMENT == 'true' }}
+        run: |
+          git push origin --follow-tags -v
+
+      - name: List target files even if recipe fails
+        if: always()
+        run: |
+          pwd
+          ls -ld
+          ls -ld target
+          find . -type d -name target
+          ls -l ./target/checkout/target || true
+          ls -l ./target/checkout/commons/target || true
+
+      - name: Release
+        continue-on-error: true
+        if: ${{ env.DO_DEPLOYMENT == 'true' }}
+        run: gh release create "v${releaseversion}" **/target/*${releaseversion}* --generate-notes --verify-tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          releaseversion: ${{ github.event.inputs.releaseversion }}
+
+      - name: Publish - Skipped
+        if: ${{ env.DO_DEPLOYMENT != 'true' }}
+        run: |
+          echo "### Publish skipped" >> $GITHUB_STEP_SUMMARY
+          echo "DO_DEPLOYMENT( ${{ env.DO_DEPLOYMENT }} ): github.event_name: ${{ github.event_name != 'workflow_dispatch'}} || github.event.inputs.force: ${{ github.event.inputs.force == 'Yes' }}"  >> $GITHUB_STEP_SUMMARY
+
+
+#      - name: Set up Java for publishing to Maven Central Repository
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '11'
+#          distribution: 'temurin'
+#          server-id: ossrh
+#          server-username: MAVEN_USERNAME
+#          server-password: MAVEN_PASSWORD
+#      - name: Publish to the Maven Central Repository
+#        run: mvn --batch-mode deploy
+#        env:
+#          MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+#          MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+#          KITEWORKS_BASE_URI: ${{ secrets.KITEWORKS_BASE_URI }}
+#          KITEWORKS_CLIENT_ID: ${{ secrets.KITEWORKS_CLIENT_ID }}
+#          KITEWORKS_CLIENT_SECRET: ${{ secrets.KITEWORKS_CLIENT_SECRET }}
+#          KITEWORKS_SIGNATURE_KEY: ${{ secrets.KITEWORKS_SIGNATURE_KEY }}
+#          KITEWORKS_USER_ID: ${{ secrets.KITEWORKS_USER_ID }}
+#          KITEWORKS_CLIENT_APP_SCOPES: ${{ secrets.KITEWORKS_CLIENT_APP_SCOPES }}
+#          KITEWORKS_REDIRECT_URI: ${{ secrets.KITEWORKS_REDIRECT_URI }}
+#          KITEWORKS_ACCESS_TOKEN_URI: ${{ secrets.KITEWORKS_ACCESS_TOKEN_URI }}
