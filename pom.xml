@@ -383,7 +383,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <id>log-skip-message</id>
@@ -421,7 +421,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>3.0.0</version>
+                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <id>log-skip-message</id>
