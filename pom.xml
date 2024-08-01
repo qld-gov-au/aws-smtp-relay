@@ -21,6 +21,14 @@
         <nvdApiKey>${env.NVD_NIST_APIKEY}</nvdApiKey>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/qld-gov-au/aws-smtp-relay</url>
+        </repository>
+    </distributionManagement>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
