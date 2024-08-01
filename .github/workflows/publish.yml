@@ -161,7 +161,6 @@ jobs:
       - name: Cleanup on failure
         if: failure()
         env:
-          NVD_NIST_APIKEY: ${{ secrets.NVD_NIST_APIKEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ORG: ${{ github.repository_owner }}
           GITHUB_REPO: ${{ github.event.repository.name }}
@@ -190,6 +189,16 @@ jobs:
         if: ${{ env.DO_DEPLOYMENT == 'true' }}
         run: |
           git push origin --follow-tags -v
+
+
+      - name: Cleanup on failure
+        if: failure()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ORG: ${{ github.repository_owner }}
+          GITHUB_REPO: ${{ github.event.repository.name }}
+          RELEASE_VERSION: ${{ github.event.inputs.releaseVersion }}
+        run: ./.github/bin/cleanupGitHubMavenPackage.sh
 
       - name: List target files even if recipe fails
         if: always()
