@@ -1,0 +1,32 @@
+name: Update Changelog
+on:
+  release:
+    types:
+      - published #only on human interactions, won't be done on github action triggers
+  push:
+    #On versioned releases
+    tags:
+      - v*.*.*
+  workflow_dispatch:
+    inputs:
+      description:
+        description: 'Manual change log update'
+jobs:
+  updateChangelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Update Changelog
+        # https://github.com/git-chglog/git-chglog#getting-started
+        run: ./.github/bin/updateChangeLog.sh
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: "Update changelog"
+          title: "Update Changelog}"
+          body: "Update changelog to reflect release changes"
+          branch: update-changelog
+          base: main
