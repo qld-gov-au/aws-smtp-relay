@@ -356,6 +356,111 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>2.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <id>attach-rpm</id>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <name>${project.artifactId}</name>
+                    <version>${project.version}</version>
+                    <group>Development/Tools</group>
+                    <requires>
+                        <require>java-21-openjdk-headless gt; 21</require>
+                    </requires>
+                    <prepareScriptlet>
+                        <script>echo "preparing ${project.name}"</script>
+                    </prepareScriptlet>
+                    <preinstallScriptlet>
+                        <script>
+                            #!/bin/bash
+                            if ! getent passwd aws-smtp-relay > /dev/null 2>&amp;1; then
+                            useradd -r aws-smtp-relay
+                            fi
+                        </script>
+                        <fileEncoding>utf-8</fileEncoding>
+                        <filter>true</filter>
+                    </preinstallScriptlet>
+                    <postinstallScriptlet>
+                        <script>
+                            systemctl daemon-reload
+                            systemctl enable aws-smtp-relay.service
+                            systemctl start aws-smtp-relay.service
+                        </script>
+                    </postinstallScriptlet>
+                    <preremoveScriptlet>
+                        <script>
+                            #!/bin/bash
+                            systemctl stop aws-smtp-relay
+                            systemctl disable aws-smtp-relay.service
+                        </script>
+                    </preremoveScriptlet>
+                    <postinstallScriptlet>
+                        <script>
+                            #!/bin/bash
+                            rm -rf /etc/init.d/aws-smtp-relay /etc/systemd/system/aws-smtp-relay.service
+                        </script>
+                    </postinstallScriptlet>
+                    <mappings>
+                        <mapping>
+                            <directory>/usr/local/bin</directory>
+                            <filemode>755</filemode>
+                            <username>aws-smtp-relay</username>
+                            <groupname>aws-smtp-relay</groupname>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/share/aws-smtp-relay</directory>
+                            <filemode>644</filemode>
+                            <sources>
+                                <source>
+                                    <location>${project.build.outputDirectory}/aws-smtp-relay.service</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/etc/default/aws-smtp-relay</directory>
+                            <filemode>644</filemode>
+                            <configuration>true</configuration>
+                            <sources>
+                                <source>
+                                    <location>${project.build.outputDirectory}/aws-smtp-relay.conf</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/etc/systemd/system/</directory>
+                            <sources>
+                                <softlinkSource>
+                                    <location>/usr/share/aws-smtp-relay/aws-smtp-relay.sh</location>
+                                </softlinkSource>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/usr/share/aws-smtp-relay/</directory>
+                            <filemode>655</filemode>
+                            <sources>
+                                <source>
+                                    <location>${project.build.outputDirectory}/aws-smtp-relay.sh</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>

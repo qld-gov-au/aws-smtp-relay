@@ -2,6 +2,7 @@ Package: [[name]]
 Version: [[version]]
 Section: misc
 Priority: optional
+Depends: openjdk-21-jdk-headless | java-sdk-headless (>= 21)
 Architecture: all
 Maintainer: Remi Cattiau <remi@cattiau.com>
 Description: AWS SMTP Relay

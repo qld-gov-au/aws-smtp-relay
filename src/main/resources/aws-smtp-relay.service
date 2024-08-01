@@ -10,6 +10,8 @@ Type=simple
 ExecStart=/usr/bin/java -jar /usr/share/aws-smtp-relay/aws-smtp-relay-${project.version}-jar-with-dependencies.jar $OPTS
 ExecReload=/usr/bin/kill -HUP $MAINPID
 SuccessExitStatus=130 143
+Restart=always
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
