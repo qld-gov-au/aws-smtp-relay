@@ -14,11 +14,11 @@ on:
       releaseVersion:
         description: 'Release version'
         required: true
-        default: '2.0.1'
+        default: '2.0.2'
       developmentVersion:
         description: 'Development version'
         required: true
-        default: '2.0.2-SNAPSHOT'
+        default: '2.0.3-SNAPSHOT'
 
 jobs:
   publish:
