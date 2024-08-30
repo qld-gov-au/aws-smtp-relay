@@ -17,7 +17,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <dependency.skip>false</dependency.skip>
-        <pmd.version>7.4.0</pmd.version>
+        <pmd.version>7.5.0</pmd.version>
         <nvdApiKey>${env.NVD_NIST_APIKEY}</nvdApiKey>
     </properties>
 
